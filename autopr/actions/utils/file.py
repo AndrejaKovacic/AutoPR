@@ -7,11 +7,9 @@ from git.repo import Repo
 
 from autopr.actions.base import ContextDict
 from autopr.actions.utils.commit import CommitPlan
-from autopr.models.prompt_chains import PromptChain
 
 import pydantic
 
-from langchain.schema import BaseOutputParser
 
 import structlog
 log = structlog.get_logger()

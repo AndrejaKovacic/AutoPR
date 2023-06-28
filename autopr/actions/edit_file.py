@@ -7,6 +7,20 @@ from autopr.actions.new_file import NewFile
 from autopr.actions.utils.commit import CommitPlan
 from autopr.actions.utils.file import add_element_to_context_list, GeneratedHunkOutputParser, ContextFile, \
     ContextCodeHunk, make_file_context, GeneratedFileHunk
+from autopr.models.prompt_rails import PromptRail
+from autopr.models.rail_objects import RailObject
+
+
+class GeneratedHunk(RailObject):
+    output_spec = """<string 
+    name="contents" 
+    description="Code diff"
+    validator=filehunk
+/>
+<string
+    name=outcome
+/>
+"""
 
 
 class RewriteCodeHunkRail(PromptRail):
@@ -43,7 +57,7 @@ RULES:
     context_hunks: list[ContextFile]
     hunk_contents: ContextCodeHunk
     plan: str
-
+    output_type = GeneratedHunk
 
 class EditFile(Action):
     id = "edit_file"
@@ -187,15 +201,13 @@ class EditFile(Action):
             #  or rather, build better context by iteratively asking about it
             context_hunks = make_file_context(self.repo, current_commit)
 
-        #TODO
-        # Run edit file langchain
-        edit_file_chain = RewriteCodeHunkChain(
+        edit_file_chain = RewriteCodeHunkRail(
             context=context,
             context_hunks=context_hunks,
             hunk_contents=code_hunk,
             plan=args.description,
         )
-        edit_file_hunk: Optional[GeneratedFileHunk] = self.rail_service.run_prompt_rail(edit_file_chain)
+        edit_file_hunk: Optional[GeneratedHunk] = self.rail_service.run_prompt_rail(edit_file_chain)
         if edit_file_hunk is None:
             self.publish_service.update_section(title=f"❌ Failed to edit file: {args.filepath}")
             return add_element_to_context_list(

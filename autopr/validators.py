@@ -13,6 +13,50 @@ import structlog
 log = structlog.get_logger()
 
 
+@register_validator(name="filehunk", data_type="string")
+class HunkValidator(Validator):
+    """
+   Hunk validator, desired format:
+        <string>
+        ```
+        {
+            "outcome": <string>
+        }
+    """
+    def validate(self, key: str, value: Any, schema: Dict):
+        log.debug("Validating hunk")
+
+        # Check if string
+        if not isinstance(value, str):
+            raise EventDetail(
+                key,
+                value,
+                schema,
+                f"Hunk '{value}' is not a string.",
+                None,
+            )
+
+        output_lines = value.split("\n")
+
+        if not output_lines[0].startswith("```"):
+            raise EventDetail(
+                key,
+                value,
+                schema,
+                f"Line '{output_lines[0]} should start with ```",
+                None
+            )
+
+        if not output_lines[len(output_lines)-1].startswith("```"):
+            raise EventDetail(
+                key,
+                value,
+                schema,
+                f"Line '{output_lines[len(output_lines)-1]} should start with ```",
+                None
+            )
+
+
 @register_validator(name="filepath", data_type="string")
 class FilePath(Validator):
     """Validate value is a valid file path.
