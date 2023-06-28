@@ -6,7 +6,6 @@ from git.repo import Repo
 from pydantic import Extra
 
 from autopr.models.rail_objects import RailObject
-from autopr.services.chain_service import ChainService
 from autopr.services.publish_service import PublishService
 from autopr.services.rail_service import RailService
 
@@ -142,7 +141,6 @@ class Action:
         self,
         repo: Repo,
         rail_service: RailService,
-        chain_service: ChainService,
         publish_service: PublishService,
         **kwargs,
     ):
@@ -151,7 +149,6 @@ class Action:
 
         # Use rail and chain services to run LLM calls
         self.rail_service = rail_service
-        self.chain_service = chain_service
 
         # Use publish service for in-progress updates
         self.publish_service = publish_service

@@ -7,10 +7,9 @@ from autopr.actions.new_file import NewFile
 from autopr.actions.utils.commit import CommitPlan
 from autopr.actions.utils.file import add_element_to_context_list, GeneratedHunkOutputParser, ContextFile, \
     ContextCodeHunk, make_file_context, GeneratedFileHunk
-from autopr.models.prompt_chains import PromptChain
 
 
-class RewriteCodeHunkChain(PromptChain):
+class RewriteCodeHunkRail(PromptRail):
     output_parser = GeneratedHunkOutputParser()
     prompt_template = f"""Hey, we've got a new code hunk to diff.
 
@@ -188,6 +187,7 @@ class EditFile(Action):
             #  or rather, build better context by iteratively asking about it
             context_hunks = make_file_context(self.repo, current_commit)
 
+        #TODO
         # Run edit file langchain
         edit_file_chain = RewriteCodeHunkChain(
             context=context,
@@ -195,7 +195,7 @@ class EditFile(Action):
             hunk_contents=code_hunk,
             plan=args.description,
         )
-        edit_file_hunk: Optional[GeneratedFileHunk] = self.chain_service.run_chain(edit_file_chain)
+        edit_file_hunk: Optional[GeneratedFileHunk] = self.rail_service.run_prompt_rail(edit_file_chain)
         if edit_file_hunk is None:
             self.publish_service.update_section(title=f"❌ Failed to edit file: {args.filepath}")
             return add_element_to_context_list(

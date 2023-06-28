@@ -5,7 +5,6 @@ from git.repo import Repo
 
 from autopr.models.events import EventUnion
 from autopr.services.action_service import ActionService
-from autopr.services.chain_service import ChainService
 from autopr.services.commit_service import CommitService
 from autopr.services.diff_service import DiffService
 from autopr.services.publish_service import PublishService
@@ -26,7 +25,6 @@ class Agent:
     def __init__(
         self,
         rail_service: RailService,
-        chain_service: ChainService,
         diff_service: DiffService,
         commit_service: CommitService,
         publish_service: PublishService,

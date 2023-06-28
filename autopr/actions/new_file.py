@@ -9,6 +9,30 @@ from autopr.actions.utils.commit import CommitPlan
 from autopr.models.prompt_chains import PromptChain
 
 
+class NewFileRail(PromptRail):
+    output_parser = GeneratedHunkOutputParser() #TODO: different parser?
+    prompt_template = f"""Hey, we've got a new file to create.
+
+{{context}}
+
+This is the codebase subset we decided to look at:
+```
+{{context_hunks}}
+```
+
+This is the plan for the file we're creating:
+```
+{{plan}}
+```
+
+Please send me the contents of the file.
+
+{{format_instructions}}"""
+    context: ContextDict
+    context_hunks: list[ContextFile]
+    plan: str
+
+
 class NewFileChain(PromptChain):
     output_parser = GeneratedHunkOutputParser()
     prompt_template = f"""Hey, we've got a new file to create.
@@ -42,6 +66,7 @@ class NewFile(Action):
         filepath: str
         description: str
 
+#this also works for rails?, zakaj se path to newly created file? double check?
         output_spec = f"""
 <string
     name="filepath"
@@ -97,12 +122,12 @@ class NewFile(Action):
             context_hunks = make_file_context(self.repo, current_commit)
 
         # Run new file langchain
-        new_file_chain = NewFileChain(
+        new_file_rail = NewFileRail(
             context=context,
             context_hunks=context_hunks,
             plan=args.description,
         )
-        new_file_hunk: Optional[GeneratedFileHunk] = self.chain_service.run_chain(new_file_chain)
+        new_file_hunk: Optional[GeneratedFileHunk] = self.rail_service.run_prompt_rail(new_file_rail)
         if new_file_hunk is None:
             self.publish_service.update_section(title=f"❌ Failed to create new file: {args.filepath}")
             return add_element_to_context_list(

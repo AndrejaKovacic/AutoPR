@@ -7,7 +7,6 @@ from .models.events import EventUnion, IssueLabelEvent
 from .repos.completions_repo import get_completions_repo
 from .services.action_service import ActionService
 from .services.agent_service import AgentService
-from .services.chain_service import ChainService
 from .services.commit_service import CommitService
 from .services.diff_service import GitApplyService
 from .services.publish_service import PublishService
@@ -75,12 +74,6 @@ class MainService:
             num_reasks=settings.num_reasks,
             temperature=settings.rail_temperature,
             publish_service=self.publish_service,
-        )
-        chain_service = ChainService(
-            completions_repo=completions_repo,
-            publish_service=self.publish_service,
-            context_limit=settings.context_limit,
-            min_tokens=settings.min_tokens,
         )
 
         # Create diff service

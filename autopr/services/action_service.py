@@ -10,7 +10,6 @@ from autopr.actions.base import get_all_actions, Action
 from autopr.actions.base import ContextDict
 from autopr.models.rail_objects import RailObject
 from autopr.repos.completions_repo import CompletionsRepo
-from autopr.services.chain_service import ChainService
 from autopr.services.publish_service import PublishService
 from autopr.services.rail_service import RailService
 
@@ -36,7 +35,6 @@ class ActionService:
         completions_repo: CompletionsRepo,
         publish_service: PublishService,
         rail_service: RailService,
-        chain_service: ChainService,
         num_reasks: int = 3
     ):
         self.repo = repo
